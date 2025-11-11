@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS roles (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(20) NOT NULL UNIQUE
+);
+
+INSERT INTO roles (name) 
+VALUES 
+    ('ROLE_ADMIN'),
+    ('ROLE_DAF'),
+    ('ROLE_SALES'),
+    ('ROLE_CUSTOMER')
+ON CONFLICT (name) DO NOTHING;

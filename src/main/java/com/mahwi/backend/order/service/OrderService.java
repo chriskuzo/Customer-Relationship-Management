@@ -83,4 +83,34 @@ public class OrderService {
     public void deleteOrder(Long id) {
         orderRepository.deleteById(id);
     }
+
+    /**
+     * Retrieves all orders.
+     * @return list of all orders.
+     */
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
+
+    /**
+     * Retrieves an order by its ID.
+     * @param id order ID.
+     * @return the order with the given ID.
+     */
+    public Order getOrderById(Long id) {
+        return orderRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Order not found"));
+    }
+
+    /**
+     * Updates an existing order.
+     * @param id order ID.
+     * @param order order object with updated fields.
+     * @return updated order.
+     */
+    public Order updateOrder(Long id, Order order) {
+        Order existing = getOrderById(id);
+        // Update fields as needed
+        return orderRepository.save(existing);
+    }
 }

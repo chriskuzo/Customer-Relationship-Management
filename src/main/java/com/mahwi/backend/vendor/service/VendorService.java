@@ -55,4 +55,14 @@ public class VendorService {
     public void deleteVendor(Long id) {
         vendorRepository.deleteById(id);
     }
+
+    /**
+     * Retrieves a vendor by ID.
+     * @param id vendor ID.
+     * @return vendor entity.
+     */
+    public Vendor getVendorById(Long id) {
+        return vendorRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Vendor not found"));
+    }
 }

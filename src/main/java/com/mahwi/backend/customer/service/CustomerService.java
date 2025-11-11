@@ -59,4 +59,31 @@ public class CustomerService {
     public void deleteCustomer(Long id) {
         customerRepository.deleteById(id);
     }
+
+    /**
+     * Retrieves all customers.
+     * @return list of all customers.
+     */
+    public List<Customer> getAllCustomers() {
+        return customerRepository.findAll();
+    }
+
+    /**
+     * Retrieves a customer by ID.
+     * @param id the customer ID.
+     * @return the customer entity.
+     */
+    public Customer getCustomerById(Long id) {
+        return customerRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Customer not found"));
+    }
+
+    /**
+     * Creates a new customer.
+     * @param customer the customer entity to create.
+     * @return the created customer entity.
+     */
+    public Customer createCustomer(Customer customer) {
+        return customerRepository.save(customer);
+    }
 }

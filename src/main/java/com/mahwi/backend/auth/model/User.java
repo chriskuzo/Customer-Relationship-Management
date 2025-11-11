@@ -1,31 +1,56 @@
 package com.mahwi.backend.auth.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * Entity representing system users such as Admins, Vendors, and Sales personnel.
+ * User entity representing system users (Admins, Staff, Customers, etc.)
  */
-@Data
 @Entity
-@Table(name = "users")
+@Table(
+    name = "users",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = "email"),
+        @UniqueConstraint(columnNames = "mobile")
+    }
+)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    /** Display name or identifier (can be email or mobile) */
+    @Column(nullable = false, unique = true)
     private String username;
 
+    /** Optional email address */
     private String email;
 
+    /** Optional mobile number (E.164 format recommended) */
+    private String mobile;
+
+    /** Hashed password */
     @Column(nullable = false)
     private String password;
 
-    private Long vendorId;
+    /** User roles (ADMIN, DAF, CUSTOMER, etc.) */
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "user_roles",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id")
-    private Role role;
+    /** Utility: check if the user has a specific role */
+    public boolean hasRole(ERole role) {
+        return roles.stream().anyMatch(r -> r.getName() == role);
+    }
 }
