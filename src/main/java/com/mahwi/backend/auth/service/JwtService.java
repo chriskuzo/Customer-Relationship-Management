@@ -80,9 +80,9 @@ public class JwtService {
             .parseClaimsJws(token)
             .getBody();
 
-        List<String> roles = claims.get("roles", List.class);
+        @SuppressWarnings("unchecked")
+        List<String> roles = (List<String>) claims.get("roles");
         
-        // Add null check to prevent NPE
         List<SimpleGrantedAuthority> authorities = (roles != null)
             ? roles.stream()
                 .map(SimpleGrantedAuthority::new)

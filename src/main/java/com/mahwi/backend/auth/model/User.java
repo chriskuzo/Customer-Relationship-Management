@@ -1,7 +1,11 @@
 package com.mahwi.backend.auth.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,11 +16,12 @@ import java.util.Set;
 @Table(
     name = "users",
     uniqueConstraints = {
-        @UniqueConstraint(columnNames = "email"),
-        @UniqueConstraint(columnNames = "mobile")
+        @UniqueConstraint(name = "uk_users_email", columnNames = "email"),
+        @UniqueConstraint(name = "uk_users_mobile", columnNames = "mobile")
     }
 )
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -26,17 +31,22 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** Display name or identifier (can be email or mobile) */
-    @Column(nullable = false, unique = true)
+    @NotBlank
+    @Column(nullable = false)
     private String username;
 
-    /** Optional email address */
+    @Email
+    @NotBlank
+    @Column(nullable = false, unique = true)
     private String email;
 
-    /** Optional mobile number (E.164 format recommended) */
+    /** Optional mobile number (9–12 digits) */
+    @Pattern(regexp = "^[0-9]{9,12}$", message = "Mobile must be 9 to 12 digits")
+    @Column(nullable = true, unique = true)
     private String mobile;
 
     /** Hashed password */
+    @NotBlank
     @Column(nullable = false)
     private String password;
 
@@ -47,6 +57,7 @@ public class User {
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
+    @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
     /** Utility: check if the user has a specific role */

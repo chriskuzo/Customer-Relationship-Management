@@ -17,18 +17,17 @@ import java.util.Set;
  */
 @Service
 public class AuthService {
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public AuthService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+    }
 
     /**
      * Registers a new user by encoding their password and assigning a role.
@@ -72,15 +71,16 @@ public class AuthService {
     /**
      * Authenticates a user and returns a JWT token if credentials are valid.
      *
-     * @param username the user's username
-     * @param password the plain password to verify
+     * @param identifier the user's email or mobile number
+     * @param rawPassword the plain password to verify
      * @return a signed JWT token if valid
      */
-    public String login(String username, String password) {
-        User user = userRepository.findByUsername(username)
+    public String login(String identifier, String rawPassword) {
+        User user = userRepository.findByEmail(identifier)
+                .or(() -> userRepository.findByMobile(identifier))
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!passwordEncoder.matches(password, user.getPassword())) {
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
         return jwtService.generateToken(user);
